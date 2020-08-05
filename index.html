@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <meta name="author" content="">
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!--<link href="css/style.css" rel="stylesheet">-->
+</head>
+
+<body>
+
+<div class='title'>
+
+    <div class='size'></div>
+    <h3>Etch-a-Sketch!</h3>
+
+</div>
+
+<div class='game'>
+
+    <div class='buttons'>
+        <button onClick='sizeButton()'>Size</button>
+        <button onClick='standardButton()'>Standard Mode</button>
+        <button onClick='colorButton()'>Color Mode</button>
+        <button onClick='sensitiveButton()'>Sensitive Mode</button>
+    </div>
+
+    <div class='etch-a-sketch'>
+        <div class='container'></div>
+        <div class='spinControl1'></div>
+        <div class='spinControl2'></div>
+    </div>
+
+</div>
+
+
+<style>
+
+    body {
+        font-size: larger;
+        font-family:'Courier New', Courier, monospace;
+        background-color: #ddd
+    }
+
+    .title {
+        position: relative;
+        margin-top: 30px;
+        min-width: 1200px;
+        height: 100px;
+        width: 100vw;
+    }
+
+    h3 {
+        display: block;
+        background-color:red;
+        height: 50px;
+        width: 500px;
+        text-align: center;
+        padding-top: 25px;
+        margin-left: 500px;
+        box-shadow: inset 2px 2px 6px 2px black;
+    }
+
+    .size {
+        background-color: #c9c;
+        position: absolute;
+        width: 100px;
+        height: 30px;
+        box-shadow:inset 1px 1px 4px 2px black;
+        text-align: center;
+        padding-top: 10px;
+    }
+
+    .buttons {
+        display: flex;
+        position: relative;
+        float: left;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 75vh;
+        min-height: 450px;
+        min-width: 200px;
+        width: 20vw;
+        left: 40px;
+
+    }
+
+    button {
+        display: block;
+        background-color: #c9c;
+        box-shadow: 5px 5px #ddd;
+        height: 100px;
+        font-size: large;
+        font-family:'Courier New', Courier, monospace;
+        margin-right: 5px;
+    }
+
+    .game {
+        left: 0px;
+        height: 100vh;
+        width: 100vw;
+        margin-top: 30px;
+    }
+
+    .etch-a-sketch {
+        position: absolute;
+        background-color: red;
+        border: solid 2px black;
+        box-shadow: 5px 5px 2px 5px #222;
+        border-radius: 10px;
+        width: 700px;
+        height: 550px;
+        left: 400px;
+    }
+
+    .container {
+        position: absolute;
+        display: grid;
+        border: solid 5px black;
+        border-radius: 5px;
+        width: 400px;
+        height: 400px;
+        left: 22.5%;
+        top:6%;
+    }
+
+    .spinControl1 {
+        position: absolute;
+        background-color: white;
+        border: solid 5px black;
+        box-shadow: 4px 4px 7px #222;
+        border-radius: 50%;
+        height: 50px;
+        width: 50px;
+        bottom: 5%;
+        left: 10%;
+    }
+
+    .spinControl2 {
+        position: absolute;
+        background-color: white;
+        border: solid 5px black;
+        box-shadow: 4px 4px 7px #222;
+        border-radius: 50%;
+        height: 50px;
+        width: 50px;
+        bottom: 5%;
+        right: 10%;
+    }
+
+    .container > div {
+        height: 100%;
+        width: 100%;
+    }
+
+</style>
+
+<script>
+
+let nodeList;
+let array;
+let currentDimension;
+let squareTotal;
+let currentMode = 'standardMode';
+let container = document.querySelector('.container');
+
+function createGrid(dimension) {
+    currentDimension = dimension;
+    displayDimension();
+    squareTotal = dimension*dimension;
+    //this creates an array of values used in sensitiveMode
+    shadeArray();
+    let array = []
+    container.style.gridTemplateColumns = `repeat(${dimension}, 1fr)`;
+    container.style.gridTemplateRows = `repeat(${dimension}, 1fr)`;
+    for (i = 0; i < squareTotal; i++) {
+        let square = document.createElement('div');
+        square.setAttribute('id', i);
+        square.style.backgroundColor = 'white';
+        //square.style.border = '1px solid black';
+        array.push(square);
+    }
+    array.forEach(square => container.appendChild(square));
+    nodeList = document.querySelectorAll('.container>div')
+    if (currentMode == 'standardMode') {
+        playMode(standardMode);
+    } 
+    else if (currentMode == 'colorMode') {
+        playMode(colorMode);
+    }
+    else if (currentMode == 'sensitiveMode') {
+        playMode(sensitiveMode);
+    }
+}
+
+function sizeButton() {
+    userAnswer = prompt("How many squares per side?", 'Enter a number');
+    if (!userAnswer || isNaN(userAnswer)) {alert('you have to enter a number')}
+    else {
+        currentDimension = userAnswer;
+        clearBoard()
+    };
+}
+
+function displayDimension() {
+    let sizeDisplay = document.querySelector('div.size');
+    sizeDisplay.textContent = `${currentDimension} x ${currentDimension}`;
+}
+
+function standardButton() {
+    currentMode = 'standardMode';
+    clearBoard();
+}
+
+function colorButton() {
+    currentMode = 'colorMode';
+    clearBoard();
+}
+
+function sensitiveButton() {
+    currentMode = 'sensitiveMode';
+    clearBoard();
+}
+
+function playMode(mode) {
+    nodeList.forEach(node => 
+        node.addEventListener('mouseover', mode));
+}
+
+function standardMode() {
+    this.style.backgroundColor = 'black';
+}
+
+function colorMode() {
+    this.style.backgroundColor = randomColor();
+}
+
+function randomColor() {
+    let color = [];
+    for (i = 0; i < 3; i++) {color.push(Math.floor(Math.random() * 255))};
+    return `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+}
+
+function sensitiveMode() {
+    let id = this.id
+    shade[id] -= 20;
+    this.style.backgroundColor = `hsl(0,0%,${shade[id]}%)`
+}
+
+function clearBoard() {
+    nodeList.forEach(node => container.removeChild(node));
+        createGrid(currentDimension);
+}
+
+//THIS IS TO KEEP TRACK OF SHADE VALUES FOR SENSITIVE MODE
+let shade = []
+function shadeArray() {
+    for (i = 0; i < squareTotal; i++) {
+        shade.push(100);
+    }
+}
+
+
+createGrid(16);
+
+
+
+</script>
+</body>
+
+</html>
